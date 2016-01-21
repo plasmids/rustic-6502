@@ -1,0 +1,4 @@
+[package]
+name = "rustic-6502"
+version = "0.0.1"
+authors = ["Evan Weiler <plasmids@mykolab.com>"]
