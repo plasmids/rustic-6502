@@ -1,3 +1,5 @@
+#![feature(box_syntax)]
+
 mod cpu;
 
 use std::env;
@@ -30,9 +32,10 @@ fn main() {
         Err(e) => panic!("File \"{}\" could not be opened.", &filename),
     };
     let mut bin_buf: Vec<u8> = Vec::new();
-    let bin_size = match file.read_to_end(&mut bin_buf) {
-        Ok(size) => size,
+    match file.read_to_end(&mut bin_buf) {
+        Ok(size) => (),
         Err(e) => panic!("File \"{}\" could not be read.", &filename),
     };
-    println!("{:?}", bin_size);
+    let cpu = cpu::Cpu::new();
+    cpu.run(&bin_buf);
 }
