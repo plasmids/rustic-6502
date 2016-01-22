@@ -1,4 +1,5 @@
 use std::env;
+use std::fs::File;
 
 #[derive(PartialEq)]
 enum Verbosity {
@@ -19,4 +20,9 @@ fn main() {
             _ => filename = arg,
         }
     }
+    let open_result = File::open(&filename);
+    let file = match open_result {
+        Ok(file) => file,
+        Err(e) => panic!("File \"{}\" could not be read.", &filename),
+    };
 }
