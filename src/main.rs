@@ -1,5 +1,9 @@
+mod cpu;
+
 use std::env;
 use std::fs::File;
+
+use std::io::Read;
 
 #[derive(PartialEq)]
 enum Verbosity {
@@ -21,8 +25,14 @@ fn main() {
         }
     }
     let open_result = File::open(&filename);
-    let file = match open_result {
+    let mut file = match open_result {
         Ok(file) => file,
+        Err(e) => panic!("File \"{}\" could not be opened.", &filename),
+    };
+    let mut bin_buf: Vec<u8> = Vec::new();
+    let bin_size = match file.read_to_end(&mut bin_buf) {
+        Ok(size) => size,
         Err(e) => panic!("File \"{}\" could not be read.", &filename),
     };
+    println!("{:?}", bin_size);
 }
