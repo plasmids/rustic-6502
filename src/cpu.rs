@@ -1,5 +1,7 @@
 use std::u16;
 
+use std::iter::Iterator;
+
 const RAM_SIZE: usize = (u16::MAX as usize) + 1; //pc (program counter) is 16 bits
 const SP_HARD_UPPER: u16 = 0b00000001_00000000; // upper 8 bits of the 16 bit sp are hard coded to 00000001
 
@@ -26,7 +28,12 @@ impl Cpu {
         }
     }
 
-    pub fn run(& self, bin_buf: & Vec<u8>) {
-
+    pub fn run(&mut self, bin_buf: & Vec<u8>) {
+        if(bin_buf.len() > RAM_SIZE) {
+            panic!("Binary is too large");
+        }
+        for (addr, byte) in bin_buf.iter().enumerate() {
+            self.mem[addr] = bin_buf[addr];
+        }
     }
 }

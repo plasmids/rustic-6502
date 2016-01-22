@@ -36,6 +36,6 @@ fn main() {
         Ok(size) => (),
         Err(e) => panic!("File \"{}\" could not be read.", &filename),
     };
-    let cpu = cpu::Cpu::new();
+    let mut cpu = cpu::Cpu::new();
     cpu.run(&bin_buf);
 }
