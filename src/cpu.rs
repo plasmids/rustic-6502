@@ -116,7 +116,7 @@ impl Cpu {
             panic!("Binary is too large");
         }
         for (addr, byte) in bin_buf.iter().enumerate() {
-            self.mem[addr] = bin_buf[addr];
+            self.mem[addr] = *byte;
         }
     }
 
