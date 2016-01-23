@@ -94,7 +94,7 @@ impl Cpu {
                 // 0xE0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::undoc, Cpu::nop_0xEA, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xF0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
