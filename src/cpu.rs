@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use std::u16;
 
 use std::iter::Iterator;
@@ -112,7 +114,7 @@ impl Cpu {
     }
 
     pub fn run(&mut self, bin_buf: & Vec<u8>) {
-        if(bin_buf.len() > RAM_SIZE) {
+        if bin_buf.len() > RAM_SIZE {
             panic!("Binary is too large");
         }
         for (addr, byte) in bin_buf.iter().enumerate() {
