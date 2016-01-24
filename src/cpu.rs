@@ -123,6 +123,10 @@ impl<'a> Cpu<'a> {
         }
     }
 
-    fn nop_0xEA(&mut self) {}
-    fn undoc(&mut self) {}
+    fn nop_0xEA(&mut self) {
+        if verbose { println!("0xEA: NOP"); }
+    }
+    fn undoc(&mut self) {
+        panic!("Undocumented intruction.");
+    }
 }
