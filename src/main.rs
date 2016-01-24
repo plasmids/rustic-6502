@@ -27,6 +27,6 @@ fn main() {
         Ok(size) => (),
         Err(e) => panic!("File \"{}\" could not be read.", &filename),
     };
-    let mut cpu = cpu::Cpu::new(&verbose);
+    let mut cpu = cpu::Cpu::new(verbose.clone());
     cpu.run(&bin_buf);
 }

@@ -6,20 +6,20 @@ use std::iter::Iterator;
 const RAM_SIZE: usize = (u16::MAX as usize) + 1; //pc (program counter) is 16 bits
 const SP_HARD_UPPER: u16 = 0b00000001_00000000; // upper 8 bits of the 16 bit sp are hard coded to 00000001
 
-pub struct Cpu<'a> {
+pub struct Cpu {
     mem: Box<[u8; RAM_SIZE]>,
-    instructions: [fn(&mut Cpu<'a>); 256],
+    instructions: [fn(&mut Cpu); 256],
     pc: u16,
     accum: u8,
     x: u8,
     y: u8,
     sp: u8,
     status: u8,
-    verbose: &'a bool,
+    verbose: bool,
 }
 
-impl<'a> Cpu<'a> {
-    pub fn new(verbose: &'a bool) -> Cpu<'a> {
+impl Cpu {
+    pub fn new(verbose: bool) -> Cpu {
         Cpu {
             mem: box [0u8; RAM_SIZE],
             instructions: [
@@ -124,7 +124,7 @@ impl<'a> Cpu<'a> {
     }
 
     fn nop_0xEA(&mut self) {
-        if verbose { println!("0xEA: NOP"); }
+        if self.verbose { println!("0xEA: NOP"); }
     }
     fn undoc(&mut self) {
         panic!("Undocumented intruction.");
