@@ -1,8 +1,6 @@
 #![allow(non_snake_case)]
 
 use std::u16;
-use Verbosity;
-use Verbosity::*;
 use std::iter::Iterator;
 
 const RAM_SIZE: usize = (u16::MAX as usize) + 1; //pc (program counter) is 16 bits
@@ -17,11 +15,11 @@ pub struct Cpu {
     y: u8,
     sp: u8,
     status: u8,
-    logging: Verbosity,
+    verbose: bool,
 }
 
 impl Cpu {
-    pub fn new(logging: Verbosity) -> Cpu {
+    pub fn new(verbose: bool) -> Cpu {
         Cpu {
             mem: box [0u8; RAM_SIZE],
             instructions: [
@@ -112,7 +110,7 @@ impl Cpu {
             y: 0,
             sp: 0,
             status: 0,
-            logging: logging,
+            verbose: verbose,
         }
     }
 

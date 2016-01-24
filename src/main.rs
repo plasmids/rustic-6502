@@ -4,25 +4,16 @@ mod cpu;
 
 use std::env;
 use std::fs::File;
-use Verbosity::*;
 use std::io::Read;
-
-#[derive(PartialEq)]
-pub enum Verbosity {
-    Quiet,
-    Verbose,
-    Extra,
-}
 
 fn main() {
     let mut args = env::args();
     args.next();
     let mut filename = "".to_string();
-    let mut verbosity = Quiet;
+    let mut verbose = false;
     for arg in args {
         match arg.as_str() {
-            "-v" => verbosity = Verbose,
-            "-V" => verbosity = Extra,
+            "-v" => verbose = true,
             _ => filename = arg,
         }
     }
@@ -36,6 +27,6 @@ fn main() {
         Ok(size) => (),
         Err(e) => panic!("File \"{}\" could not be read.", &filename),
     };
-    let mut cpu = cpu::Cpu::new(verbosity);
+    let mut cpu = cpu::Cpu::new(verbose);
     cpu.run(&bin_buf);
 }
