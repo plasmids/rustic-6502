@@ -13,6 +13,7 @@ pub struct Cpu {
     accum: u8,
     x: u8,
     y: u8,
+    cycles: u64,
     verbose: bool,
     mem: Box<[u8; RAM_SIZE]>,
     instructions: [fn(&mut Cpu); 256],
@@ -27,6 +28,7 @@ impl Cpu {
             accum: 0,
             x: 0,
             y: 0,
+            cycles: 0,
             verbose: verbose,
             mem: box [0u8; RAM_SIZE],
             instructions: [
