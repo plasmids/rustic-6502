@@ -7,20 +7,27 @@ const RAM_SIZE: usize = (u16::MAX as usize) + 1; //pc (program counter) is 16 bi
 const SP_HARD_UPPER: u16 = 0b00000001_00000000; // upper 8 bits of the 16 bit sp are hard coded to 00000001
 
 pub struct Cpu {
-    mem: Box<[u8; RAM_SIZE]>,
-    instructions: [fn(&mut Cpu); 256],
     pc: u16,
+    sp: u8,
+    status: u8,
     accum: u8,
     x: u8,
     y: u8,
-    sp: u8,
-    status: u8,
     verbose: bool,
+    mem: Box<[u8; RAM_SIZE]>,
+    instructions: [fn(&mut Cpu); 256],
 }
 
 impl Cpu {
     pub fn new(verbose: bool) -> Cpu {
         Cpu {
+            pc: 0,
+            sp: 0,
+            status: 0,
+            accum: 0,
+            x: 0,
+            y: 0,
+            verbose: verbose,
             mem: box [0u8; RAM_SIZE],
             instructions: [
                 // 0x00
@@ -104,13 +111,6 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
             ],
-            pc: 0,
-            accum: 0,
-            x: 0,
-            y: 0,
-            sp: 0,
-            status: 0,
-            verbose: verbose,
         }
     }
 
