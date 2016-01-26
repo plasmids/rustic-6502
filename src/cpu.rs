@@ -6,6 +6,16 @@ use std::iter::Iterator;
 const RAM_SIZE: usize = (u16::MAX as usize) + 1; //pc (program counter) is 16 bits
 const SP_HARD_UPPER: u16 = 0b00000001_00000000; // upper 8 bits of the 16 bit sp are hard coded to 00000001
 
+const FCARRY: u8 =    0b0000_0001;
+const FZERO: u8 =     0b0000_0010;
+const FINTERUPT: u8 = 0b0000_0100;
+const FDECIMAL: u8 =  0b0000_1000;
+const FBRK: u8 =      0b0001_0000;
+//Unused, always 1    0b0010_0000;
+const FOVERFLOW: u8 = 0b0100_0000;
+const FSIGN: u8 =     0b1000_0000;
+
+
 pub struct Cpu {
     pc: u16,
     sp: u8,
@@ -24,7 +34,7 @@ impl Cpu {
         Cpu {
             pc: 0,
             sp: 0,
-            status: 0,
+            status: 0b0010_0000,
             accum: 0,
             x: 0,
             y: 0,
@@ -122,6 +132,18 @@ impl Cpu {
         }
         for (addr, byte) in bin_buf.iter().enumerate() {
             self.mem[addr] = *byte;
+        }
+    }
+
+    fn get_flag(status: &u8, flag: &u8) -> bool {
+        return status & flag != 0;
+    }
+
+    fn set_flag(status: &mut u8, flag: &u8, value: &bool) {
+        if(*value) {
+            *status |= *flag;
+        } else {
+            *status &= !*flag;
         }
     }
 
