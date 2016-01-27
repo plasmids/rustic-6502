@@ -150,7 +150,7 @@ impl Cpu {
 
     fn nop_0xEA(&mut self) {
         if self.verbose { println!("0xEA: NOP"); }
-        cycles += 2;
+        self.cycles += 2;
     }
     fn undoc(&mut self) {
         panic!("Undocumented intruction.");

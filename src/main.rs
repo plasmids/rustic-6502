@@ -34,7 +34,6 @@ fn main() {
             }
         }
     }
-    println!("{} {} {}", verbose, filename, start_address);
     let open_result = File::open(&filename);
     let mut file = match open_result {
         Ok(file) => file,
