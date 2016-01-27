@@ -126,13 +126,14 @@ impl Cpu {
         }
     }
 
-    pub fn run(&mut self, bin_buf: & Vec<u8>) {
+    pub fn run(&mut self, bin_buf: & Vec<u8>, start_address: u16) {
         if bin_buf.len() > RAM_SIZE {
             panic!("Binary is too large");
         }
         for (addr, byte) in bin_buf.iter().enumerate() {
             self.mem[addr] = *byte;
         }
+        self.pc = start_address;
     }
 
     fn get_flag(status: &u8, flag: &u8) -> bool {
