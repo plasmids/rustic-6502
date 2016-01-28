@@ -93,7 +93,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xA0
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::undoc, Cpu::ldx_0xA2, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -152,6 +152,14 @@ impl Cpu {
         } else {
             *status &= !*flag;
         }
+    }
+
+    fn ldx_0xA2(&mut self) {
+        if self.verbose { println!("0xA2: LDX"); }
+        self.x = self.mem[self.pc as usize];
+        self.pc += 1;
+        self.cycles += 2;
+        // Figure out page boundries
     }
 
     fn cld_0xD8(&mut self) {
