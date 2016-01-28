@@ -197,7 +197,7 @@ impl Cpu {
     fn cld_0xD8(&mut self) {
         if self.verbose { println!("0xD8: CLD"); }
         Cpu::set_flag(&mut self.status, &FDECIMAL, false);
-        self.cycles +=2;
+        self.cycles += 2;
     }
 
     fn nop_0xEA(&mut self) {
@@ -205,6 +205,6 @@ impl Cpu {
         self.cycles += 2;
     }
     fn undoc(&mut self) {
-        panic!("Undocumented intruction.");
+        panic!("Undocumented instruction.");
     }
 }
