@@ -95,7 +95,7 @@ impl Cpu {
                 // 0xA0
                 Cpu::undoc, Cpu::undoc, Cpu::ldx_0xA2, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::lda_0xA9, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xB0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -163,6 +163,13 @@ impl Cpu {
     fn ldx_0xA2(&mut self) {
         if self.verbose { println!("0xA2: LDX"); }
         self.x = self.mem[self.pc as usize];
+        self.pc += 1;
+        self.cycles += 2;
+    }
+
+    fn lda_0xA9(&mut self) {
+        if self.verbose { println!("0xA9: LDA"); }
+        self.accum = self.mem[self.pc as usize];
         self.pc += 1;
         self.cycles += 2;
     }
