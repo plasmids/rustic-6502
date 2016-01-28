@@ -110,7 +110,7 @@ impl Cpu {
                 // 0xD0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::cld_0xD8, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xE0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -134,18 +134,30 @@ impl Cpu {
             self.mem[addr] = *byte;
         }
         self.pc = start_address;
+        loop {
+            let op_code = self.mem[self.pc as usize];
+            self.pc += 1;
+            println!("0x{:x}", op_code);
+            self.instructions[op_code as usize](self);
+        }
     }
 
     fn get_flag(status: &u8, flag: &u8) -> bool {
         return status & flag != 0;
     }
 
-    fn set_flag(status: &mut u8, flag: &u8, value: &bool) {
-        if(*value) {
+    fn set_flag(status: &mut u8, flag: &u8, value: bool) {
+        if(value) {
             *status |= *flag;
         } else {
             *status &= !*flag;
         }
+    }
+
+    fn cld_0xD8(&mut self) {
+        if self.verbose { println!("0xD8: CLD"); }
+        Cpu::set_flag(&mut self.status, &FDECIMAL, false);
+        self.cycles +=2;
     }
 
     fn nop_0xEA(&mut self) {
