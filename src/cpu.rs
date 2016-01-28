@@ -189,8 +189,8 @@ impl Cpu {
         if self.verbose { println!("0xA9: LDA"); }
         self.accum = self.mem[self.pc as usize];
         self.pc += 1;
-        Cpu::zero_check(&mut self.status, &self.x);
-        Cpu::sign_check(&mut self.status, &self.x);
+        Cpu::zero_check(&mut self.status, &self.accum);
+        Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 2;
     }
 
