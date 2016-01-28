@@ -90,7 +90,7 @@ impl Cpu {
                 // 0x90
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::undoc, Cpu::txs_0x9A, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xA0
                 Cpu::undoc, Cpu::undoc, Cpu::ldx_0xA2, Cpu::undoc,
@@ -152,6 +152,12 @@ impl Cpu {
         } else {
             *status &= !*flag;
         }
+    }
+
+    fn txs_0x9A(&mut self) {
+        if self.verbose { println!("0x9A: TXS"); }
+        self.sp = self.x;
+        self.cycles += 2;
     }
 
     fn ldx_0xA2(&mut self) {
