@@ -159,7 +159,6 @@ impl Cpu {
         self.x = self.mem[self.pc as usize];
         self.pc += 1;
         self.cycles += 2;
-        // Figure out page boundries
     }
 
     fn cld_0xD8(&mut self) {
