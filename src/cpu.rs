@@ -154,6 +154,22 @@ impl Cpu {
         }
     }
 
+    fn zero_check(status: &mut u8, byte: &u8) {
+        Cpu::set_flag(status, &FZERO, *byte == 0);
+    }
+
+    fn sign_check(status: &mut u8, byte: &u8) {
+        Cpu::set_flag(status, &FSIGN, *byte & 0b1000_0000 != 0);
+    }
+
+    fn carry_check(status: &mut u8, extened_byte: &u16) {
+        Cpu::set_flag(status, &FCARRY, *extened_byte & 0xFF00 !=0 );
+    }
+
+    fn overflow_check(status: &mut u8) {
+        //TODO Implement overflow_checking
+    }
+
     fn txs_0x9A(&mut self) {
         if self.verbose { println!("0x9A: TXS"); }
         self.sp = self.x;
@@ -164,6 +180,8 @@ impl Cpu {
         if self.verbose { println!("0xA2: LDX"); }
         self.x = self.mem[self.pc as usize];
         self.pc += 1;
+        Cpu::zero_check(&mut self.status, &self.x);
+        Cpu::sign_check(&mut self.status, &self.x);
         self.cycles += 2;
     }
 
@@ -171,6 +189,8 @@ impl Cpu {
         if self.verbose { println!("0xA9: LDA"); }
         self.accum = self.mem[self.pc as usize];
         self.pc += 1;
+        Cpu::zero_check(&mut self.status, &self.x);
+        Cpu::sign_check(&mut self.status, &self.x);
         self.cycles += 2;
     }
 
