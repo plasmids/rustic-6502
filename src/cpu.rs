@@ -170,8 +170,13 @@ impl Cpu {
         //TODO Implement overflow_checking
     }
 
+    fn get_1b(&mut self) -> u8 {
+        let byte = self.mem[self.pc as usize];
+        self.pc += 1;
+        byte
+    }
     // get little endian address
-    fn get_next_2b(&mut self) -> usize {
+    fn get_2b(&mut self) -> usize {
         let lower = self.mem[self.pc as usize] as u16;
         self.pc += 1;
         let upper = (self.mem[self.pc as usize] as u16) << 8;
@@ -181,7 +186,7 @@ impl Cpu {
 
     fn sta_0x8D(&mut self) {
         if self.verbose { println!("0x8D: STA"); }
-        self.mem[self.get_next_2b()] = self.accum;
+        self.mem[self.get_2b()] = self.accum;
         self.cycles += 4;
     }
 
@@ -193,8 +198,7 @@ impl Cpu {
 
     fn ldx_0xA2(&mut self) {
         if self.verbose { println!("0xA2: LDX"); }
-        self.x = self.mem[self.pc as usize];
-        self.pc += 1;
+        self.x = self.mem[self.get_1b() as usize];
         Cpu::zero_check(&mut self.status, &self.x);
         Cpu::sign_check(&mut self.status, &self.x);
         self.cycles += 2;
@@ -202,8 +206,7 @@ impl Cpu {
 
     fn lda_0xA9(&mut self) {
         if self.verbose { println!("0xA9: LDA"); }
-        self.accum = self.mem[self.pc as usize];
-        self.pc += 1;
+        self.accum = self.mem[self.get_1b() as usize];
         Cpu::zero_check(&mut self.status, &self.accum);
         Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 2;
@@ -211,7 +214,7 @@ impl Cpu {
 
     fn lda_0xAD(&mut self) {
         if self.verbose { println!("0xAD: LDA"); }
-        self.accum = self.mem[self.get_next_2b()];
+        self.accum = self.mem[self.get_2b()];
         Cpu::zero_check(&mut self.status, &self.accum);
         Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 4;
@@ -219,8 +222,7 @@ impl Cpu {
 
     fn cmp_0xC9(&mut self) {
         if self.verbose { println!("0xC9: CMP"); }
-        let result = self.accum - self.mem[self.pc as usize];
-        self.pc += 1;
+        let result = self.accum - self.mem[self.get_1b() as usize];
         Cpu::set_flag(&mut self.status, &FSIGN, result & FSIGN != 0);
         Cpu::set_flag(&mut self.status, &FZERO, result == 0);
         Cpu::set_flag(&mut self.status, &FZERO, result as i8 <= 0);
