@@ -96,7 +96,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::ldx_0xA2, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::lda_0xA9, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::lda_0xAD, Cpu::undoc, Cpu::undoc,
                 // 0xB0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -170,13 +170,18 @@ impl Cpu {
         //TODO Implement overflow_checking
     }
 
-    fn sta_0x8D(&mut self) {
-        if self.verbose { println!("0x8D: STA"); }
+    // get little endian address
+    fn get_2b_addr(&mut self) -> usize {
         let lower = self.mem[self.sp as usize] as u16;
         self.pc += 1;
         let upper = (self.mem[self.sp as usize] as u16) << 8;
         self.pc += 1;
-        self.mem[(upper | lower) as usize] = self.accum;
+        (upper | lower) as usize
+    }
+
+    fn sta_0x8D(&mut self) {
+        if self.verbose { println!("0x8D: STA"); }
+        self.mem[self.get_2b_addr()] = self.accum;
         self.cycles += 4;
     }
 
@@ -202,6 +207,14 @@ impl Cpu {
         Cpu::zero_check(&mut self.status, &self.accum);
         Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 2;
+    }
+
+    fn lda_0xAD(&mut self) {
+        if self.verbose { println!("0xAD: LDA"); }
+        self.accum = self.mem[self.get_2b_addr()];
+        Cpu::zero_check(&mut self.status, &self.accum);
+        Cpu::sign_check(&mut self.status, &self.accum);
+        self.cycles += 4;
     }
 
     fn cld_0xD8(&mut self) {
