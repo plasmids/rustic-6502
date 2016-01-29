@@ -171,17 +171,17 @@ impl Cpu {
     }
 
     // get little endian address
-    fn get_2b_addr(&mut self) -> usize {
-        let lower = self.mem[self.sp as usize] as u16;
+    fn get_next_2b(&mut self) -> usize {
+        let lower = self.mem[self.pc as usize] as u16;
         self.pc += 1;
-        let upper = (self.mem[self.sp as usize] as u16) << 8;
+        let upper = (self.mem[self.pc as usize] as u16) << 8;
         self.pc += 1;
         (upper | lower) as usize
     }
 
     fn sta_0x8D(&mut self) {
         if self.verbose { println!("0x8D: STA"); }
-        self.mem[self.get_2b_addr()] = self.accum;
+        self.mem[self.get_next_2b()] = self.accum;
         self.cycles += 4;
     }
 
@@ -211,7 +211,7 @@ impl Cpu {
 
     fn lda_0xAD(&mut self) {
         if self.verbose { println!("0xAD: LDA"); }
-        self.accum = self.mem[self.get_2b_addr()];
+        self.accum = self.mem[self.get_next_2b()];
         Cpu::zero_check(&mut self.status, &self.accum);
         Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 4;
