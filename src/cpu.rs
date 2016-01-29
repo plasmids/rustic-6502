@@ -86,7 +86,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::sta_0x8D, Cpu::undoc, Cpu::undoc,
                 // 0x90
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -168,6 +168,16 @@ impl Cpu {
 
     fn overflow_check(status: &mut u8) {
         //TODO Implement overflow_checking
+    }
+
+    fn sta_0x8D(&mut self) {
+        if self.verbose { println!("0x8D: STA"); }
+        let lower = self.mem[self.sp as usize] as u16;
+        self.pc += 1;
+        let upper = (self.mem[self.sp as usize] as u16) << 8;
+        self.pc += 1;
+        self.mem[(upper | lower) as usize] = self.accum;
+        self.cycles += 4;
     }
 
     fn txs_0x9A(&mut self) {
