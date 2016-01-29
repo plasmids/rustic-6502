@@ -225,7 +225,7 @@ impl Cpu {
         let result = self.accum - self.mem[self.get_1b() as usize];
         Cpu::set_flag(&mut self.status, &FSIGN, result & FSIGN != 0);
         Cpu::set_flag(&mut self.status, &FZERO, result == 0);
-        Cpu::set_flag(&mut self.status, &FZERO, result as i8 <= 0);
+        Cpu::set_flag(&mut self.status, &FCARRY, result as i8 <= 0);
         self.cycles += 2;
     }
 
