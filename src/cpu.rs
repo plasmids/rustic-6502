@@ -105,7 +105,7 @@ impl Cpu {
                 // 0xC0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::cmp_0xC9, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xD0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -215,6 +215,16 @@ impl Cpu {
         Cpu::zero_check(&mut self.status, &self.accum);
         Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 4;
+    }
+
+    fn cmp_0xC9(&mut self) {
+        if self.verbose { println!("0xC9: CMP"); }
+        let result = self.accum - self.mem[self.pc as usize];
+        self.pc += 1;
+        Cpu::set_flag(&mut self.status, &FSIGN, result & FSIGN != 0);
+        Cpu::set_flag(&mut self.status, &FZERO, result == 0);
+        Cpu::set_flag(&mut self.status, &FZERO, result as i8 <= 0);
+        self.cycles += 2;
     }
 
     fn cld_0xD8(&mut self) {
