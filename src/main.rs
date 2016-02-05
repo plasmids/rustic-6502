@@ -28,7 +28,7 @@ fn main() {
                     let address_parse = u16::from_str_radix(addr_as_string, 16);
                     match address_parse {
                         Ok(addr) => start_address = addr,
-                        Err(E) => panic!("Failed to parse start address"),
+                        _ => panic!("Failed to parse start address"),
                     }
                 }
             }

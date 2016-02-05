@@ -143,11 +143,11 @@ impl Cpu {
     }
 
     fn get_flag(status: &u8, flag: &u8) -> bool {
-        return status & flag != 0;
+        status & flag != 0
     }
 
     fn set_flag(status: &mut u8, flag: &u8, value: bool) {
-        if(value) {
+        if value {
             *status |= *flag;
         } else {
             *status &= !*flag;
