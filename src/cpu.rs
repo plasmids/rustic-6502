@@ -108,7 +108,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::cmp_0xC9, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xD0
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::bne_0xD0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::cld_0xD8, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -170,6 +170,15 @@ impl Cpu {
         //TODO Implement overflow_checking
     }
 
+    fn branch(&mut self, offset: u8) {
+        let oldpc = self.pc;
+        self.pc = (self.pc as i16 + offset as i16) as u16;
+        self.cycles += 1;
+        if oldpc ^ self.pc & 0xFF00 != 0 {
+            self.cycles += 1;
+        }
+    }
+
     fn get_1b(&mut self) -> u8 {
         let byte = self.mem[self.pc as usize];
         self.pc += 1;
@@ -227,6 +236,15 @@ impl Cpu {
         Cpu::set_flag(&mut self.status, &FZERO, result == 0);
         Cpu::set_flag(&mut self.status, &FCARRY, result as i8 <= 0);
         self.cycles += 2;
+    }
+
+    fn bne_0xD0(&mut self) {
+        if self.verbose { println!("0xD0: BNE"); }
+        let offset = self.get_1b();
+        self.cycles += 2;
+        if !Cpu::get_flag(&self.status, &FZERO) {
+            self.branch(offset);
+        }
     }
 
     fn cld_0xD8(&mut self) {
