@@ -48,7 +48,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x10
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::bpl_0x10, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -95,7 +95,7 @@ impl Cpu {
                 // 0xA0
                 Cpu::ldy_0xA0, Cpu::undoc, Cpu::ldx_0xA2, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::lda_0xA9, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::lda_0xA9, Cpu::tax_0xAA, Cpu::undoc,
                 Cpu::undoc, Cpu::lda_0xAD, Cpu::undoc, Cpu::undoc,
                 // 0xB0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -193,6 +193,15 @@ impl Cpu {
         (upper | lower)
     }
 
+    fn bpl_0x10(&mut self) {
+        if self.verbose { println!("0x10: BPL"); }
+        let offset = self.get_1b();
+        self.cycles += 2;
+        if !Cpu::get_flag(&self.status, &FSIGN) {
+            self.branch(offset);
+        }
+    }
+
     fn dey_0x88(&mut self) {
         if self.verbose { println!("0x88: DEY"); }
         self.y.wrapping_sub(1); //TODO, should this wrap?
@@ -240,6 +249,12 @@ impl Cpu {
         self.accum = self.mem[self.get_1b()];
         Cpu::zero_check(&mut self.status, &self.accum);
         Cpu::sign_check(&mut self.status, &self.accum);
+        self.cycles += 2;
+    }
+
+    fn tax_0xAA(&mut self) {
+        if self.verbose { println!("0xAA: TAX"); }
+        self.x = self.accum;
         self.cycles += 2;
     }
 
