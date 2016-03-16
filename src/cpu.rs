@@ -170,7 +170,7 @@ impl Cpu {
         Cpu::set_flag(status, &FOVERFLOW, (first ^ result) & (second ^ result) & 0b1000_0000 != 0)
     }
 
-    fn branch(&mut self, offset: u8) {
+    fn branch(&mut self, offset: usize) {
         let oldpc = self.pc;
         self.pc = (self.pc as i16 + offset as i16) as u16;
         self.cycles += 1;
@@ -179,18 +179,18 @@ impl Cpu {
         }
     }
 
-    fn get_1b(&mut self) -> u8 {
-        let byte = self.mem[self.pc as usize];
+    fn get_1b(&mut self) -> usize {
+        let byte = self.mem[self.pc as usize] as usize;
         self.pc += 1;
         byte
     }
     // get little endian address
     fn get_2b(&mut self) -> usize {
-        let lower = self.mem[self.pc as usize] as u16;
+        let lower = self.mem[self.pc as usize] as usize;
         self.pc += 1;
-        let upper = (self.mem[self.pc as usize] as u16) << 8;
+        let upper = (self.mem[self.pc as usize] as usize) << 8;
         self.pc += 1;
-        (upper | lower) as usize
+        (upper | lower)
     }
 
     fn sta_0x8D(&mut self) {
@@ -207,7 +207,7 @@ impl Cpu {
 
     fn ldy_0xA0(&mut self) {
         if self.verbose { println!("0xA0: LDY"); }
-        self.y = self.mem[self.get_1b() as usize];
+        self.y = self.mem[self.get_1b()];
         Cpu::zero_check(&mut self.status, &self.y);
         Cpu::sign_check(&mut self.status, &self.y);
         self.cycles += 2;
@@ -215,7 +215,7 @@ impl Cpu {
 
     fn ldx_0xA2(&mut self) {
         if self.verbose { println!("0xA2: LDX"); }
-        self.x = self.mem[self.get_1b() as usize];
+        self.x = self.mem[self.get_1b()];
         Cpu::zero_check(&mut self.status, &self.x);
         Cpu::sign_check(&mut self.status, &self.x);
         self.cycles += 2;
@@ -223,7 +223,7 @@ impl Cpu {
 
     fn lda_0xA9(&mut self) {
         if self.verbose { println!("0xA9: LDA"); }
-        self.accum = self.mem[self.get_1b() as usize];
+        self.accum = self.mem[self.get_1b()];
         Cpu::zero_check(&mut self.status, &self.accum);
         Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 2;
@@ -239,8 +239,8 @@ impl Cpu {
 
     fn cmp_0xC9(&mut self) {
         if self.verbose { println!("0xC9: CMP"); }
-        let result = self.accum as u16 - self.mem[self.get_1b() as usize] as u16;
-        let truncated_result = (result as u8);
+        let result = self.accum as u16 - self.mem[self.get_1b()] as u16;
+        let truncated_result = result as u8;
         Cpu::zero_check(&mut self.status, &truncated_result);
         Cpu::sign_check(&mut self.status, &truncated_result);
         Cpu::carry_check(&mut self.status, &result);
