@@ -276,6 +276,6 @@ impl Cpu {
     }
     fn undoc(&mut self) {
         println!("Ran for {} cycles.", self.cycles);
-        panic!("Undocumented instruction.");
+        panic!("Undocumented instruction 0x{:x}.", self.mem[self.pc as usize - 1]);
     }
 }
