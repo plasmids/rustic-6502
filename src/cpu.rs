@@ -50,7 +50,7 @@ impl Cpu {
                 // 0x10
                 Cpu::bpl_0x10, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::clc_0x18, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x20
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -200,6 +200,12 @@ impl Cpu {
         if !Cpu::get_flag(&self.status, &FSIGN) {
             self.branch(offset);
         }
+    }
+
+    fn clc_0x18(&mut self) {
+        if self.verbose { println!("0x18: CLC"); }
+        Cpu::set_flag(&mut self.status, &FCARRY, false);
+        self.cycles += 1;
     }
 
     fn dey_0x88(&mut self) {
