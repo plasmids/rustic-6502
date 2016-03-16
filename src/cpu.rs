@@ -75,7 +75,7 @@ impl Cpu {
                 // 0x60
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::adc_0x69, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x70
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -206,6 +206,18 @@ impl Cpu {
         if self.verbose { println!("0x18: CLC"); }
         Cpu::set_flag(&mut self.status, &FCARRY, false);
         self.cycles += 1;
+    }
+
+    fn adc_0x69(&mut self) {
+        if self.verbose { println!("0x69: ADC"); }
+        let mem_byte = self.mem[self.get_1b()];
+        let result = self.accum as u16 + mem_byte as u16 + (self.status & FCARRY) as u16;
+        let truncated_result = result as u8;
+        Cpu::zero_check(&mut self.status, &truncated_result);
+        Cpu::sign_check(&mut self.status, &truncated_result);
+        Cpu::overflow_check(&mut self.status, &truncated_result, &self.accum, &mem_byte);
+        Cpu::carry_check(&mut self.status, &result);
+        self.cycles += 2;
     }
 
     fn dey_0x88(&mut self) {
