@@ -137,7 +137,7 @@ impl Cpu {
         loop {
             let op_code = self.mem[self.pc as usize];
             self.pc += 1;
-            println!("0x{:x}", op_code);
+            if self.verbose { println!("PC: {:x}", self.pc)} ;
             self.instructions[op_code as usize](self);
         }
     }
