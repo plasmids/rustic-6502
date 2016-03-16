@@ -85,7 +85,7 @@ impl Cpu {
                 // 0x80
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::dey_0x88, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::sta_0x8D, Cpu::undoc, Cpu::undoc,
                 // 0x90
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -191,6 +191,14 @@ impl Cpu {
         let upper = (self.mem[self.pc as usize] as usize) << 8;
         self.pc += 1;
         (upper | lower)
+    }
+
+    fn dey_0x88(&mut self) {
+        if self.verbose { println!("0x88: DEY"); }
+        self.y.wrapping_sub(1); //TODO, should this wrap?
+        Cpu::zero_check(&mut self.status, &self.y);
+        Cpu::sign_check(&mut self.status, &self.y);
+        self.cycles += 2;
     }
 
     fn sta_0x8D(&mut self) {
