@@ -93,7 +93,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::txs_0x9A, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xA0
-                Cpu::undoc, Cpu::undoc, Cpu::ldx_0xA2, Cpu::undoc,
+                Cpu::ldy_0xA0, Cpu::undoc, Cpu::ldx_0xA2, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::lda_0xA9, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::lda_0xAD, Cpu::undoc, Cpu::undoc,
@@ -202,6 +202,14 @@ impl Cpu {
     fn txs_0x9A(&mut self) {
         if self.verbose { println!("0x9A: TXS"); }
         self.sp = self.x;
+        self.cycles += 2;
+    }
+
+    fn ldy_0xA0(&mut self) {
+        if self.verbose { println!("0xA0: LDY"); }
+        self.y = self.mem[self.get_1b() as usize];
+        Cpu::zero_check(&mut self.status, &self.y);
+        Cpu::sign_check(&mut self.status, &self.y);
         self.cycles += 2;
     }
 
