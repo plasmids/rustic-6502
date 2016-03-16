@@ -162,12 +162,12 @@ impl Cpu {
         Cpu::set_flag(status, &FSIGN, *byte & 0b1000_0000 != 0);
     }
 
-    fn carry_check(status: &mut u8, extened_byte: &u16) {
-        Cpu::set_flag(status, &FCARRY, *extened_byte & 0xFF00 !=0 );
+    fn carry_check(status: &mut u8, extened_result: &u16) {
+        Cpu::set_flag(status, &FCARRY, *extened_result & 0xFF00 !=0 );
     }
 
-    fn overflow_check(status: &mut u8) {
-        //TODO Implement overflow_checking
+    fn overflow_check(status: &mut u8, result: &u8, first: &u8, second: &u8) {
+        Cpu::set_flag(status, &FOVERFLOW, (first ^ result) & (second ^ result) & 0b1000_0000 != 0)
     }
 
     fn branch(&mut self, offset: u8) {
@@ -231,10 +231,11 @@ impl Cpu {
 
     fn cmp_0xC9(&mut self) {
         if self.verbose { println!("0xC9: CMP"); }
-        let result = self.accum - self.mem[self.get_1b() as usize];
-        Cpu::set_flag(&mut self.status, &FSIGN, result & FSIGN != 0);
-        Cpu::set_flag(&mut self.status, &FZERO, result == 0);
-        Cpu::set_flag(&mut self.status, &FCARRY, result as i8 <= 0);
+        let result = self.accum as u16 - self.mem[self.get_1b() as usize] as u16;
+        let truncated_result = (result as u8);
+        Cpu::zero_check(&mut self.status, &truncated_result);
+        Cpu::sign_check(&mut self.status, &truncated_result);
+        Cpu::carry_check(&mut self.status, &result);
         self.cycles += 2;
     }
 
