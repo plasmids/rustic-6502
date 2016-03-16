@@ -90,7 +90,7 @@ impl Cpu {
                 // 0x90
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::txs_0x9A, Cpu::undoc,
+                Cpu::tya_0x98, Cpu::undoc, Cpu::txs_0x9A, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xA0
                 Cpu::ldy_0xA0, Cpu::undoc, Cpu::ldx_0xA2, Cpu::undoc,
@@ -205,6 +205,12 @@ impl Cpu {
         if self.verbose { println!("0x8D: STA"); }
         self.mem[self.get_2b()] = self.accum;
         self.cycles += 4;
+    }
+
+    fn tya_0x98(&mut self) {
+        if self.verbose { println!("0x98: TYA"); }
+        self.accum = self.y;
+        self.cycles += 2;
     }
 
     fn txs_0x9A(&mut self) {
