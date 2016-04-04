@@ -65,7 +65,7 @@ impl Cpu {
                 // 0x40
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::eor_0x49, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x50
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -206,6 +206,14 @@ impl Cpu {
         if self.verbose { println!("0x18: CLC"); }
         Cpu::set_flag(&mut self.status, &FCARRY, false);
         self.cycles += 1;
+    }
+
+    fn eor_0x49(&mut self) {
+        if self.verbose { println!("0x49: EOR"); }
+        self.accum ^= self.get_1b() as u8;
+        Cpu::sign_check(&mut self.status, &self.accum);
+        Cpu::zero_check(&mut self.status, &self.accum);
+        self.cycles += 2;
     }
 
     fn adc_0x69(&mut self) {
