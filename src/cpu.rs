@@ -66,7 +66,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::eor_0x49, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::jmp_0x4C, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x50
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -118,7 +118,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::nop_0xEA, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xF0
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::beq_0xF0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -214,6 +214,12 @@ impl Cpu {
         Cpu::sign_check(&mut self.status, &self.accum);
         Cpu::zero_check(&mut self.status, &self.accum);
         self.cycles += 2;
+    }
+
+    fn jmp_0x4C(&mut self) {
+        if self.verbose { println!("0x49: JMP"); }
+        self.pc = self.get_2b() as u16;
+        self.cycles += 3;
     }
 
     fn adc_0x69(&mut self) {
@@ -321,6 +327,16 @@ impl Cpu {
         if self.verbose { println!("0xEA: NOP"); }
         self.cycles += 2;
     }
+
+    fn beq_0xF0(&mut self) {
+        if self.verbose { println!("0xF0: BEQ"); }
+        let offset = self.get_1b();
+        self.cycles += 2;
+        if Cpu::get_flag(&self.status, &FZERO) {
+            self.branch(offset);
+        }
+    }
+
     fn undoc(&mut self) {
         println!("Ran for {} cycles.", self.cycles);
         panic!("Undocumented instruction 0x{:x}.", self.mem[self.pc as usize - 1]);
