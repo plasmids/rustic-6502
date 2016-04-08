@@ -15,6 +15,7 @@ const FBRK: u8 =      0b0001_0000;
 const FOVERFLOW: u8 = 0b0100_0000;
 const FSIGN: u8 =     0b1000_0000;
 
+use std::io; // For debugging
 
 pub struct Cpu {
     pc: u16,
@@ -105,7 +106,7 @@ impl Cpu {
                 // 0xC0
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::cmp_0xC9, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::cmp_0xC9, Cpu::dex_0xCA, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xD0
                 Cpu::bne_0xD0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -136,8 +137,11 @@ impl Cpu {
         self.pc = start_address;
         loop {
             let op_code = self.mem[self.pc as usize];
+            if self.verbose {
+                println!("PC: {:x}", self.pc);
+                println!("Status: {:b}", &self.status);
+            }
             self.pc += 1;
-            if self.verbose { println!("PC: {:x}", self.pc)} ;
             self.instructions[op_code as usize](self);
         }
     }
@@ -170,9 +174,9 @@ impl Cpu {
         Cpu::set_flag(status, &FOVERFLOW, (first ^ result) & (second ^ result) & 0b1000_0000 != 0)
     }
 
-    fn branch(&mut self, offset: usize) {
+    fn branch(&mut self, offset: i8) {
         let oldpc = self.pc;
-        self.pc = (self.pc as i16 + offset as i16) as u16;
+        self.pc = (self.pc as i16 + offset as i16 ) as u16;
         self.cycles += 1;
         if oldpc ^ self.pc & 0xFF00 != 0 {
             self.cycles += 1;
@@ -198,7 +202,7 @@ impl Cpu {
         let offset = self.get_1b();
         self.cycles += 2;
         if !Cpu::get_flag(&self.status, &FSIGN) {
-            self.branch(offset);
+            self.branch(offset as i8);
         }
     }
 
@@ -218,18 +222,20 @@ impl Cpu {
 
     fn jmp_0x4C(&mut self) {
         if self.verbose { println!("0x49: JMP"); }
+        //io::stdin().read_line(&mut String::new()).unwrap();
         self.pc = self.get_2b() as u16;
         self.cycles += 3;
     }
 
     fn adc_0x69(&mut self) {
         if self.verbose { println!("0x69: ADC"); }
-        let mem_byte = self.mem[self.get_1b()];
+        let mem_byte = self.get_1b();
         let result = self.accum as u16 + mem_byte as u16 + (self.status & FCARRY) as u16;
         let truncated_result = result as u8;
+        self.accum = truncated_result;
         Cpu::zero_check(&mut self.status, &truncated_result);
         Cpu::sign_check(&mut self.status, &truncated_result);
-        Cpu::overflow_check(&mut self.status, &truncated_result, &self.accum, &mem_byte);
+        Cpu::overflow_check(&mut self.status, &truncated_result, &self.accum, &(mem_byte as u8));
         Cpu::carry_check(&mut self.status, &result);
         self.cycles += 2;
     }
@@ -262,7 +268,7 @@ impl Cpu {
 
     fn ldy_0xA0(&mut self) {
         if self.verbose { println!("0xA0: LDY"); }
-        self.y = self.mem[self.get_1b()];
+        self.y = self.get_1b() as u8;
         Cpu::zero_check(&mut self.status, &self.y);
         Cpu::sign_check(&mut self.status, &self.y);
         self.cycles += 2;
@@ -298,6 +304,14 @@ impl Cpu {
         self.cycles += 4;
     }
 
+    fn dex_0xCA(&mut self) {
+        if self.verbose { println!("0xCA: DEX"); }
+        self.x.wrapping_sub(1);
+        Cpu::zero_check(&mut self.status, &self.x);
+        Cpu::sign_check(&mut self.status, &self.x);
+        self.cycles += 2;
+    }
+
     fn cmp_0xC9(&mut self) {
         if self.verbose { println!("0xC9: CMP"); }
         let result = self.accum as u16 - self.mem[self.get_1b()] as u16;
@@ -313,7 +327,7 @@ impl Cpu {
         let offset = self.get_1b();
         self.cycles += 2;
         if !Cpu::get_flag(&self.status, &FZERO) {
-            self.branch(offset);
+            self.branch(offset as i8);
         }
     }
 
@@ -333,7 +347,7 @@ impl Cpu {
         let offset = self.get_1b();
         self.cycles += 2;
         if Cpu::get_flag(&self.status, &FZERO) {
-            self.branch(offset);
+            self.branch(offset as i8);
         }
     }
 
