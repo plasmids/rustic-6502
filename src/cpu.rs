@@ -96,7 +96,7 @@ impl Cpu {
                 // 0xA0
                 Cpu::ldy_0xA0, Cpu::undoc, Cpu::ldx_0xA2, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::lda_0xA9, Cpu::tax_0xAA, Cpu::undoc,
+                Cpu::tay_0xA8, Cpu::lda_0xA9, Cpu::tax_0xAA, Cpu::undoc,
                 Cpu::undoc, Cpu::lda_0xAD, Cpu::undoc, Cpu::undoc,
                 // 0xB0
                 Cpu::bcs_0xB0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -114,7 +114,7 @@ impl Cpu {
                 Cpu::cld_0xD8, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xE0
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::cpx_0xE0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::nop_0xEA, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -292,6 +292,8 @@ impl Cpu {
     fn tya_0x98(&mut self) {
         if self.verbose { println!("0x98: TYA"); }
         self.accum = self.y;
+        Cpu::zero_check(&mut self.status, &self.accum);
+        Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 2;
     }
 
@@ -314,6 +316,14 @@ impl Cpu {
         self.x = self.mem[self.get_1b()];
         Cpu::zero_check(&mut self.status, &self.x);
         Cpu::sign_check(&mut self.status, &self.x);
+        self.cycles += 2;
+    }
+
+    fn tay_0xA8(&mut self) {
+        if self.verbose { println!("0xA9: LDA"); }
+        self.y = self.accum;
+        Cpu::zero_check(&mut self.status, &self.y);
+        Cpu::sign_check(&mut self.status, &self.y);
         self.cycles += 2;
     }
 
@@ -382,6 +392,13 @@ impl Cpu {
     fn cld_0xD8(&mut self) {
         if self.verbose { println!("0xD8: CLD"); }
         Cpu::set_flag(&mut self.status, &FDECIMAL, false);
+        self.cycles += 2;
+    }
+
+    fn cpx_0xE0(&mut self) {
+        if self.verbose { println!("0xE0: CPX"); }
+        let mem_byte = self.get_1b() as u8;
+        Cpu::compare(&self.x, &mem_byte, &mut self.status);
         self.cycles += 2;
     }
 
