@@ -104,7 +104,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xC0
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::cpy_0xC0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::cmp_0xC9, Cpu::dex_0xCA, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -183,6 +183,22 @@ impl Cpu {
         }
     }
 
+    fn compare(register: &u8, mem_byte: &u8, status: &mut u8) {
+        let result = register.wrapping_sub(*mem_byte);
+        Cpu::set_flag(status, &FSIGN, result & 0b1000_0000 != 0);
+        if register < mem_byte {
+            Cpu::set_flag(status, &FZERO, false);
+            Cpu::set_flag(status, &FCARRY, false);
+        } else if register > mem_byte {
+            Cpu::set_flag(status, &FZERO, false);
+            Cpu::set_flag(status, &FCARRY, true);
+        } else {
+            Cpu::set_flag(status, &FSIGN, false);
+            Cpu::set_flag(status, &FZERO, true);
+            Cpu::set_flag(status, &FCARRY, true);
+        }
+    }
+
     fn get_1b(&mut self) -> usize {
         let byte = self.mem[self.pc as usize] as usize;
         self.pc += 1;
@@ -242,7 +258,7 @@ impl Cpu {
 
     fn dey_0x88(&mut self) {
         if self.verbose { println!("0x88: DEY"); }
-        self.y.wrapping_sub(1); //TODO, should this wrap?
+        self.y = self.y.wrapping_sub(1); //TODO, should this wrap?
         Cpu::zero_check(&mut self.status, &self.y);
         Cpu::sign_check(&mut self.status, &self.y);
         self.cycles += 2;
@@ -304,9 +320,16 @@ impl Cpu {
         self.cycles += 4;
     }
 
+    fn cpy_0xC0(&mut self) {
+        if self.verbose { println!("0xC0: CPY"); }
+        let mem_byte = self.get_1b() as u8;
+        Cpu::compare(&self.y, &mem_byte, &mut self.status);
+        self.cycles += 2;
+    }
+
     fn dex_0xCA(&mut self) {
         if self.verbose { println!("0xCA: DEX"); }
-        self.x.wrapping_sub(1);
+        self.x = self.x.wrapping_sub(1);
         Cpu::zero_check(&mut self.status, &self.x);
         Cpu::sign_check(&mut self.status, &self.x);
         self.cycles += 2;
