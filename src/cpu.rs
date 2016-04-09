@@ -338,6 +338,8 @@ impl Cpu {
     fn tax_0xAA(&mut self) {
         if self.verbose { println!("0xAA: TAX"); }
         self.x = self.accum;
+        Cpu::zero_check(&mut self.status, &self.x);
+        Cpu::sign_check(&mut self.status, &self.x);
         self.cycles += 2;
     }
 
