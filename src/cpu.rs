@@ -89,7 +89,7 @@ impl Cpu {
                 Cpu::dey_0x88, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::sta_0x8D, Cpu::undoc, Cpu::undoc,
                 // 0x90
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::bcc_0x90, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::tya_0x98, Cpu::undoc, Cpu::txs_0x9A, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -141,6 +141,7 @@ impl Cpu {
                 println!("PC: {:x}", self.pc);
                 println!("Status: {:b}", &self.status);
             }
+            //if self.pc == 0x539 { panic!() } //DEBUG
             self.pc += 1;
             self.instructions[op_code as usize](self);
         }
@@ -270,6 +271,15 @@ impl Cpu {
         self.cycles += 4;
     }
 
+    fn bcc_0x90(&mut self) {
+        if self.verbose { println!("0x90: BCC"); }
+        let offset = self.get_1b() as i8;
+        if !Cpu::get_flag(&self.status, &FCARRY) {
+            self.branch(offset);
+        }
+        self.cycles += 2;
+    }
+
     fn tya_0x98(&mut self) {
         if self.verbose { println!("0x98: TYA"); }
         self.accum = self.y;
@@ -300,7 +310,7 @@ impl Cpu {
 
     fn lda_0xA9(&mut self) {
         if self.verbose { println!("0xA9: LDA"); }
-        self.accum = self.mem[self.get_1b()];
+        self.accum = self.get_1b() as u8;
         Cpu::zero_check(&mut self.status, &self.accum);
         Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 2;
@@ -337,11 +347,8 @@ impl Cpu {
 
     fn cmp_0xC9(&mut self) {
         if self.verbose { println!("0xC9: CMP"); }
-        let result = self.accum as u16 - self.mem[self.get_1b()] as u16;
-        let truncated_result = result as u8;
-        Cpu::zero_check(&mut self.status, &truncated_result);
-        Cpu::sign_check(&mut self.status, &truncated_result);
-        Cpu::carry_check(&mut self.status, &result);
+        let mem_byte = self.get_1b() as u8;
+        Cpu::compare(&self.accum, &mem_byte, &mut self.status);
         self.cycles += 2;
     }
 
