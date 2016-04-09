@@ -216,11 +216,11 @@ impl Cpu {
 
     fn bpl_0x10(&mut self) {
         if self.verbose { println!("0x10: BPL"); }
-        let offset = self.get_1b();
-        self.cycles += 2;
+        let offset = self.get_1b() as i8;
         if !Cpu::get_flag(&self.status, &FSIGN) {
-            self.branch(offset as i8);
+            self.branch(offset);
         }
+        self.cycles += 2;
     }
 
     fn clc_0x18(&mut self) {
@@ -372,11 +372,11 @@ impl Cpu {
 
     fn bne_0xD0(&mut self) {
         if self.verbose { println!("0xD0: BNE"); }
-        let offset = self.get_1b();
-        self.cycles += 2;
+        let offset = self.get_1b() as i8;
         if !Cpu::get_flag(&self.status, &FZERO) {
-            self.branch(offset as i8);
+            self.branch(offset);
         }
+        self.cycles += 2;
     }
 
     fn cld_0xD8(&mut self) {
@@ -392,11 +392,11 @@ impl Cpu {
 
     fn beq_0xF0(&mut self) {
         if self.verbose { println!("0xF0: BEQ"); }
-        let offset = self.get_1b();
-        self.cycles += 2;
+        let offset = self.get_1b() as i8;
         if Cpu::get_flag(&self.status, &FZERO) {
-            self.branch(offset as i8);
+            self.branch(offset);
         }
+        self.cycles += 2;
     }
 
     fn undoc(&mut self) {
