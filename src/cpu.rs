@@ -59,7 +59,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x30
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::bmi_0x30, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -99,7 +99,7 @@ impl Cpu {
                 Cpu::undoc, Cpu::lda_0xA9, Cpu::tax_0xAA, Cpu::undoc,
                 Cpu::undoc, Cpu::lda_0xAD, Cpu::undoc, Cpu::undoc,
                 // 0xB0
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::bcs_0xB0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -229,6 +229,15 @@ impl Cpu {
         self.cycles += 1;
     }
 
+    fn bmi_0x30(&mut self) {
+        if self.verbose { println!("0x30: BMI"); }
+        let offset = self.get_1b() as i8;
+        if Cpu::get_flag(&self.status, &FSIGN) {
+            self.branch(offset);
+        }
+        self.cycles += 2;
+    }
+
     fn eor_0x49(&mut self) {
         if self.verbose { println!("0x49: EOR"); }
         self.accum ^= self.get_1b() as u8;
@@ -328,6 +337,15 @@ impl Cpu {
         Cpu::zero_check(&mut self.status, &self.accum);
         Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 4;
+    }
+
+    fn bcs_0xB0(&mut self) {
+        if self.verbose { println!("0xB0: BCS"); }
+        let offset = self.get_1b() as i8;
+        if Cpu::get_flag(&self.status, &FCARRY) {
+            self.branch(offset);
+        }
+        self.cycles += 2;
     }
 
     fn cpy_0xC0(&mut self) {
