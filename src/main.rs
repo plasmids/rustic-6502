@@ -13,9 +13,11 @@ fn main() {
     let mut filename = "".to_string();
     let mut start_address: u16 = 0;
     let mut verbose = false;
+    let mut limit = false;
     for arg in args {
         match arg.as_str() {
             "-v" => verbose = true,
+            "-l" => limit = true,
             arg_str => {
                 if filename.is_empty() {
                     filename = arg.clone();
@@ -44,6 +46,6 @@ fn main() {
         Ok(size) => (),
         Err(e) => panic!("File \"{}\" could not be read.", &filename),
     };
-    let mut cpu = cpu::Cpu::new(verbose.clone());
-    cpu.run(&bin_buf, start_address);
+    let mut cpu = cpu::Cpu::new();
+    cpu.run(&bin_buf, start_address, verbose.clone(), limit.clone());
 }

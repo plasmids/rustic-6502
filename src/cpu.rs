@@ -2,6 +2,9 @@
 
 use std::u16;
 use std::iter::Iterator;
+use std::thread;
+use std::time::Duration;
+use std::io; // For debugging
 
 const RAM_SIZE: usize = (u16::MAX as usize) + 1; //pc (program counter) is 16 bits
 const SP_HARD_UPPER: u16 = 0b00000001_00000000; // upper 8 bits of the 16 bit sp are hard coded to 00000001
@@ -14,8 +17,6 @@ const FBRK: u8 =      0b0001_0000;
 //Unused, always 1    0b0010_0000;
 const FOVERFLOW: u8 = 0b0100_0000;
 const FSIGN: u8 =     0b1000_0000;
-
-use std::io; // For debugging
 
 pub struct Cpu {
     pc: u16,
@@ -31,7 +32,7 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    pub fn new(verbose: bool) -> Cpu {
+    pub fn new() -> Cpu {
         Cpu {
             pc: 0,
             sp: 0,
@@ -40,7 +41,7 @@ impl Cpu {
             x: 0,
             y: 0,
             cycles: 0,
-            verbose: verbose,
+            verbose: false,
             mem: box [0u8; RAM_SIZE],
             instructions: [
                 // 0x00
@@ -127,7 +128,9 @@ impl Cpu {
         }
     }
 
-    pub fn run(&mut self, bin_buf: & Vec<u8>, start_address: u16) {
+    pub fn run(&mut self, bin_buf: & Vec<u8>, start_address: u16, verbose: bool, limit: bool) {
+        self.verbose = verbose;
+        let duration = Duration::new(0, 500000000);
         if bin_buf.len() > RAM_SIZE {
             panic!("Binary is too large");
         }
@@ -144,6 +147,9 @@ impl Cpu {
             //if self.pc == 0x539 { panic!() } //DEBUG
             self.pc += 1;
             self.instructions[op_code as usize](self);
+            if limit {
+                thread::sleep(duration);
+            }
         }
     }
 
