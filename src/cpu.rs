@@ -247,7 +247,7 @@ impl Cpu {
     }
 
     fn jmp_0x4C(&mut self) {
-        if self.verbose { println!("0x49: JMP"); }
+        if self.verbose { println!("0x4C: JMP"); }
         //io::stdin().read_line(&mut String::new()).unwrap();
         self.pc = self.get_2b() as u16;
         self.cycles += 3;
