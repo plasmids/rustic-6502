@@ -327,7 +327,7 @@ impl Cpu {
     }
 
     fn tay_0xA8(&mut self) {
-        if self.verbose { println!("0xA9: LDA"); }
+        if self.verbose { println!("0xA8: TAY"); }
         self.y = self.accum;
         Cpu::zero_check(&mut self.status, &self.y);
         Cpu::sign_check(&mut self.status, &self.y);
