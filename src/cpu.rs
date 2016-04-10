@@ -66,7 +66,7 @@ impl Cpu {
                 // 0x40
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::eor_0x49, Cpu::undoc, Cpu::undoc,
+                Cpu::pha_0x48, Cpu::eor_0x49, Cpu::undoc, Cpu::undoc,
                 Cpu::jmp_0x4C, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x50
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -250,6 +250,13 @@ impl Cpu {
         if self.verbose { println!("0x49: JMP"); }
         //io::stdin().read_line(&mut String::new()).unwrap();
         self.pc = self.get_2b() as u16;
+        self.cycles += 3;
+    }
+
+    fn pha_0x48(&mut self) {
+        if self.verbose { println!("0x48: PHA"); }
+        self.mem[SP_HARD_UPPER as usize & self.sp as usize] = self.accum;
+        self.sp -= 1;
         self.cycles += 3;
     }
 
