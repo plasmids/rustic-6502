@@ -87,7 +87,7 @@ impl Cpu {
                 // 0x80
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::dey_0x88, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::dey_0x88, Cpu::undoc, Cpu::txa_0x8A, Cpu::undoc,
                 Cpu::undoc, Cpu::sta_0x8D, Cpu::undoc, Cpu::undoc,
                 // 0x90
                 Cpu::bcc_0x90, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -276,6 +276,14 @@ impl Cpu {
         Cpu::sign_check(&mut self.status, &truncated_result);
         Cpu::overflow_check(&mut self.status, &truncated_result, &self.accum, &(mem_byte as u8));
         Cpu::carry_check(&mut self.status, &result);
+        self.cycles += 2;
+    }
+
+    fn txa_0x8A(&mut self) {
+        if self.verbose { println!("0x8A: TXA"); }
+        self.accum = self.x;
+        Cpu::zero_check(&mut self.status, &self.accum);
+        Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 2;
     }
 
