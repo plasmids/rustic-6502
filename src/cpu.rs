@@ -57,7 +57,7 @@ impl Cpu {
                 // 0x20
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::plp_0x28, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x30
                 Cpu::bmi_0x30, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -233,6 +233,13 @@ impl Cpu {
         if self.verbose { println!("0x18: CLC"); }
         Cpu::set_flag(&mut self.status, &FCARRY, false);
         self.cycles += 1;
+    }
+
+    fn plp_0x28(&mut self) {
+        if self.verbose { println!("0x28: PLP"); }
+        self.status = self.mem[SP_HARD_UPPER | self.sp as usize];
+        self.sp += 1;
+        self.cycles += 4;
     }
 
     fn bmi_0x30(&mut self) {
