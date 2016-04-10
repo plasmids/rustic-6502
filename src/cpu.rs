@@ -70,7 +70,7 @@ impl Cpu {
                 Cpu::pha_0x48, Cpu::eor_0x49, Cpu::undoc, Cpu::undoc,
                 Cpu::jmp_0x4C, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x50
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::bvc_0x50, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -237,8 +237,8 @@ impl Cpu {
 
     fn plp_0x28(&mut self) {
         if self.verbose { println!("0x28: PLP"); }
-        self.status = self.mem[SP_HARD_UPPER | self.sp as usize];
         self.sp += 1;
+        self.status = self.mem[SP_HARD_UPPER | self.sp as usize];
         self.cycles += 4;
     }
 
@@ -271,6 +271,15 @@ impl Cpu {
         self.mem[SP_HARD_UPPER | self.sp as usize] = self.accum;
         self.sp -= 1;
         self.cycles += 3;
+    }
+
+    fn bvc_0x50(&mut self) {
+        if self.verbose { println!("0x50: BVC"); }
+        let offset = self.get_1b() as i8;
+        if !Cpu::get_flag(&self.status, &FOVERFLOW) {
+            self.branch(offset);
+        }
+        self.cycles += 2;
     }
 
     fn pla_0x68(&mut self) {
