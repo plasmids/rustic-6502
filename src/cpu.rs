@@ -80,7 +80,7 @@ impl Cpu {
                 Cpu::pla_0x68, Cpu::adc_0x69, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x70
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::bvs_0x70, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -251,6 +251,13 @@ impl Cpu {
         self.cycles += 2;
     }
 
+    fn pha_0x48(&mut self) {
+        if self.verbose { println!("0x48: PHA"); }
+        self.mem[SP_HARD_UPPER | self.sp as usize] = self.accum;
+        self.sp -= 1;
+        self.cycles += 3;
+    }
+
     fn eor_0x49(&mut self) {
         if self.verbose { println!("0x49: EOR"); }
         self.accum ^= self.get_1b() as u8;
@@ -263,13 +270,6 @@ impl Cpu {
         if self.verbose { println!("0x4C: JMP"); }
         //io::stdin().read_line(&mut String::new()).unwrap();
         self.pc = self.get_2b() as u16;
-        self.cycles += 3;
-    }
-
-    fn pha_0x48(&mut self) {
-        if self.verbose { println!("0x48: PHA"); }
-        self.mem[SP_HARD_UPPER | self.sp as usize] = self.accum;
-        self.sp -= 1;
         self.cycles += 3;
     }
 
@@ -302,11 +302,12 @@ impl Cpu {
         self.cycles += 2;
     }
 
-    fn txa_0x8A(&mut self) {
-        if self.verbose { println!("0x8A: TXA"); }
-        self.accum = self.x;
-        Cpu::zero_check(&mut self.status, &self.accum);
-        Cpu::sign_check(&mut self.status, &self.accum);
+    fn bvs_0x70(&mut self) {
+        if self.verbose { println!("0x70: BVS"); }
+        let offset = self.get_1b() as i8;
+        if Cpu::get_flag(&self.status, &FOVERFLOW) {
+            self.branch(offset);
+        }
         self.cycles += 2;
     }
 
@@ -315,6 +316,14 @@ impl Cpu {
         self.y = self.y.wrapping_sub(1); //TODO, should this wrap?
         Cpu::zero_check(&mut self.status, &self.y);
         Cpu::sign_check(&mut self.status, &self.y);
+        self.cycles += 2;
+    }
+
+    fn txa_0x8A(&mut self) {
+        if self.verbose { println!("0x8A: TXA"); }
+        self.accum = self.x;
+        Cpu::zero_check(&mut self.status, &self.accum);
+        Cpu::sign_check(&mut self.status, &self.accum);
         self.cycles += 2;
     }
 
