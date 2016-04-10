@@ -77,7 +77,7 @@ impl Cpu {
                 // 0x60
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::adc_0x69, Cpu::undoc, Cpu::undoc,
+                Cpu::pla_0x68, Cpu::adc_0x69, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0x70
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -264,6 +264,13 @@ impl Cpu {
         self.mem[SP_HARD_UPPER as usize | self.sp as usize] = self.accum;
         self.sp -= 1;
         self.cycles += 3;
+    }
+
+    fn pla_0x68(&mut self) {
+        if self.verbose { println!("0x68: PLA"); }
+        self.sp += 1;
+        self.accum = self.mem[SP_HARD_UPPER as usize | self.sp as usize];
+        self.cycles += 4;
     }
 
     fn adc_0x69(&mut self) {
