@@ -107,7 +107,7 @@ impl Cpu {
                 Cpu::cpy_0xC0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::cmp_0xC9, Cpu::dex_0xCA, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::cmp_0xCD, Cpu::undoc, Cpu::undoc,
                 // 0xD0
                 Cpu::bne_0xD0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -255,7 +255,7 @@ impl Cpu {
 
     fn pha_0x48(&mut self) {
         if self.verbose { println!("0x48: PHA"); }
-        self.mem[SP_HARD_UPPER as usize & self.sp as usize] = self.accum;
+        self.mem[SP_HARD_UPPER as usize | self.sp as usize] = self.accum;
         self.sp -= 1;
         self.cycles += 3;
     }
@@ -387,6 +387,13 @@ impl Cpu {
         Cpu::zero_check(&mut self.status, &self.x);
         Cpu::sign_check(&mut self.status, &self.x);
         self.cycles += 2;
+    }
+
+    fn cmp_0xCD(&mut self) {
+        if self.verbose { println!("0xCA: DEX"); }
+        let mem_byte = self.mem[self.get_2b()];
+        Cpu::compare(&self.accum, &mem_byte, &mut self.status);
+        self.cycles += 4;
     }
 
     fn bne_0xD0(&mut self) {
