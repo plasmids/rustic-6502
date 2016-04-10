@@ -144,7 +144,7 @@ impl Cpu {
                 println!("PC: {:x}", self.pc);
                 println!("Status: {:b}", &self.status);
             }
-            //if self.pc == 0x539 { panic!() } //DEBUG
+            //if self.pc ==  { panic!() } //DEBUG
             self.pc += 1;
             self.instructions[op_code as usize](self);
             if limit {
