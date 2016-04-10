@@ -101,7 +101,7 @@ impl Cpu {
                 // 0xB0
                 Cpu::bcs_0xB0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
-                Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
+                Cpu::undoc, Cpu::undoc, Cpu::tsx_0xBA, Cpu::undoc,
                 Cpu::undoc, Cpu::undoc, Cpu::undoc, Cpu::undoc,
                 // 0xC0
                 Cpu::cpy_0xC0, Cpu::undoc, Cpu::undoc, Cpu::undoc,
@@ -364,6 +364,14 @@ impl Cpu {
         if Cpu::get_flag(&self.status, &FCARRY) {
             self.branch(offset);
         }
+        self.cycles += 2;
+    }
+
+    fn tsx_0xBA(&mut self) {
+        if self.verbose { println!("0xBA: TSX"); }
+        self.x = self.sp;
+        Cpu::zero_check(&mut self.status, &self.x);
+        Cpu::sign_check(&mut self.status, &self.x);
         self.cycles += 2;
     }
 
