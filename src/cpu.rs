@@ -7,7 +7,7 @@ use std::time::Duration;
 use std::io; // For debugging
 
 const RAM_SIZE: usize = (u16::MAX as usize) + 1; //pc (program counter) is 16 bits
-const SP_HARD_UPPER: u16 = 0b00000001_00000000; // upper 8 bits of the 16 bit sp are hard coded to 00000001
+const SP_HARD_UPPER: usize = 0b1_00000000; // upper 8 bits of the 16 bit sp are hard coded to 00000001
 
 const FCARRY: u8 =    0b0000_0001;
 const FZERO: u8 =     0b0000_0010;
@@ -261,7 +261,7 @@ impl Cpu {
 
     fn pha_0x48(&mut self) {
         if self.verbose { println!("0x48: PHA"); }
-        self.mem[SP_HARD_UPPER as usize | self.sp as usize] = self.accum;
+        self.mem[SP_HARD_UPPER | self.sp as usize] = self.accum;
         self.sp -= 1;
         self.cycles += 3;
     }
@@ -269,7 +269,7 @@ impl Cpu {
     fn pla_0x68(&mut self) {
         if self.verbose { println!("0x68: PLA"); }
         self.sp += 1;
-        self.accum = self.mem[SP_HARD_UPPER as usize | self.sp as usize];
+        self.accum = self.mem[SP_HARD_UPPER | self.sp as usize];
         self.cycles += 4;
     }
 
