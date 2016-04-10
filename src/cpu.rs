@@ -374,18 +374,18 @@ impl Cpu {
         self.cycles += 2;
     }
 
+    fn cmp_0xC9(&mut self) {
+        if self.verbose { println!("0xC9: CMP"); }
+        let mem_byte = self.get_1b() as u8;
+        Cpu::compare(&self.accum, &mem_byte, &mut self.status);
+        self.cycles += 2;
+    }
+
     fn dex_0xCA(&mut self) {
         if self.verbose { println!("0xCA: DEX"); }
         self.x = self.x.wrapping_sub(1);
         Cpu::zero_check(&mut self.status, &self.x);
         Cpu::sign_check(&mut self.status, &self.x);
-        self.cycles += 2;
-    }
-
-    fn cmp_0xC9(&mut self) {
-        if self.verbose { println!("0xC9: CMP"); }
-        let mem_byte = self.get_1b() as u8;
-        Cpu::compare(&self.accum, &mem_byte, &mut self.status);
         self.cycles += 2;
     }
 
