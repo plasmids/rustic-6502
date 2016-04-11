@@ -141,8 +141,7 @@ impl Cpu {
         loop {
             let op_code = self.mem[self.pc as usize];
             if self.verbose {
-                println!("PC: {:x}", self.pc);
-                println!("Status: {:b}", &self.status);
+                print!("S:{:08b}|PC:{:08X} ", &self.status, self.pc);
             }
             //if self.pc ==  { panic!() } //DEBUG
             self.pc += 1;
